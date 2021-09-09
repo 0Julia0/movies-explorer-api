@@ -19,8 +19,8 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 const corsOptions = {
-  origin: ['https://julia.p.nomoredomains.club',
-    'http://julia.p.nomoredomains.club',
+  origin: ['https://movies-explorer-julia.nomoredomains.club',
+    'http://movies-explorer-julia.nomoredomains.club',
     'localhost:3000',
     'http://192.168.1.177:3000',
     'http://localhost:3000',
