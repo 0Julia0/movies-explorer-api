@@ -1,4 +1,4 @@
-const Movies = require('../models/movies');
+const Movie = require('../models/movies');
 
 const ServerError = require('../errors/serverError');
 const BadRequestError = require('../errors/badRequestError');
@@ -33,7 +33,8 @@ const createMovie = (req, res, next) => {
     nameEN,
     thumbnail,
     movieId,
-    owner: req.user._id })
+    owner: req.user._id,
+  })
     .then((movie) => res.send(movie))
     .catch((error) => {
       if (error.name === 'ValidationError') {
