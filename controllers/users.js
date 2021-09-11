@@ -59,9 +59,9 @@ const createUser = (req, res, next) => {
           name,
         }))
         .then((user) => res.status(201).send({
-          _id: user._id,
           email: user.email,
           name: user.name,
+          _id: user._id,
         }));
     })
     .catch((err) => {
@@ -103,9 +103,17 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
+const logout = (req, res, next) => res.clearCookie('jwt', {
+  httpOnly: true,
+  sameSite: true,
+})
+  .status(201).send({ message: 'Токен успешно удален.' })
+  .catch(next);
+
 module.exports = {
   getUser,
   createUser,
   updateUser,
   login,
+  logout,
 };
