@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const moviesSchema = new mongoose.Schema({
   country: {
@@ -25,27 +26,24 @@ const moviesSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /^(http|https):\/\/[a-z0-9\-._~:/?#[\]@!$&'()*+,;=]/g.test(v);
-      },
+      validator: (v) => validator.isURL(v, { protocols: ['http', 'https'], require_tld: true, require_protocol: true }),
+      message: 'Поле изображение заполнено некорректно.',
     },
   },
   trailer: {
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /^(http|https):\/\/[a-z0-9\-._~:/?#[\]@!$&'()*+,;=]/g.test(v);
-      },
+      validator: (v) => validator.isURL(v, { protocols: ['http', 'https'], require_tld: true, require_protocol: true }),
+      message: 'Поле трейлер заполнено некорректно.',
     },
   },
   thumbnail: {
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /^(http|https):\/\/[a-z0-9\-._~:/?#[\]@!$&'()*+,;=]/g.test(v);
-      },
+      validator: (v) => validator.isURL(v, { protocols: ['http', 'https'], require_tld: true, require_protocol: true }),
+      message: 'Поле миниатюрное изображение заполнено некорректно.',
     },
   },
   owner: {

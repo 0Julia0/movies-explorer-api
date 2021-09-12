@@ -7,6 +7,11 @@ const ConflictingRequest = require('../errors/conflictingRequest');
 const BadRequestError = require('../errors/badRequestError');
 const UnauthorizedError = require('../errors/unauthorizedError');
 
+const {
+  userNotFoundErrorText, userIdNotFoundErrorText, duplicateEmailErrorText,
+  incorrectUserDataErrorText, incorrectlyDataErrorText,
+} = require('../utils/constants');
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 const SALT_ROUNDS = 10;
@@ -15,7 +20,7 @@ const getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь не найден.');
+        throw new NotFoundError(userNotFoundErrorText);
       }
       res.send(user);
     })
@@ -36,9 +41,16 @@ const updateUser = (req, res, next) => {
     })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь с указанным _id не найден.');
+        throw new NotFoundError(userIdNotFoundErrorText);
       }
       res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'MongoError' && err.code === 11000) {
+        throw new ConflictingRequest(duplicateEmailErrorText);
+      } else {
+        next(err);
+      }
     })
     .catch(next);
 };
@@ -50,7 +62,7 @@ const createUser = (req, res, next) => {
   return User.findOne({ email })
     .then((data) => {
       if (data) {
-        throw new ConflictingRequest('Пользователь с таким email уже существует');
+        throw new ConflictingRequest(duplicateEmailErrorText);
       }
       return bcrypt.hash(password, SALT_ROUNDS)
         .then((hash) => User.create({
@@ -66,7 +78,7 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные при создании пользователя.');
+        throw new BadRequestError(incorrectUserDataErrorText);
       } else {
         next(err);
       }
@@ -76,14 +88,11 @@ const createUser = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    throw new BadRequestError('Email и пароль не могут быть пустыми.');
-  }
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user) {
-        throw next(new UnauthorizedError('Не правильная почта или пароль'));
+        throw next(new UnauthorizedError(incorrectlyDataErrorText));
       }
       return res.cookie(
         'jwt',
